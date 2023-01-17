@@ -1,17 +1,5 @@
 version: "3.9"
 services:
-  # proxy
-  proxy:
-    image: nginx
-    ports:
-      - "80:80"
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - .:/etc/nginx/conf.d
-      - /etc/ssl/certs:/etc/ssl/certs
-      - /etc/ssl/private:/etc/ssl/private
   # client
   client:
     build: ./client
@@ -46,6 +34,22 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ./.env.dev.db
+
+  # proxy
+  proxy:
+    image: nginx
+    ports:
+      - "80:80"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - .:/etc/nginx/conf.d/
+      - /etc/ssl/certs:/etc/ssl/certs/
+      - /etc/ssl/private:/etc/ssl/private/
+    links:
+      - server
+      - client
 
   # debugger
   wdb:
