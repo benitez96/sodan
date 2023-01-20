@@ -2,10 +2,12 @@ version: "3.9"
 services:
   # client
   client:
-    build: ./client
+    build:
+      context: ./client
+      build: Dockerfile.prod
     ports:
       - "3000:3000"
-    command: serve -s build
+    command: serve -s dist
     volumes:
       - ./client/:/app/
   # server
@@ -43,6 +45,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    user: nginx
     volumes:
       - .:/etc/nginx/conf.d/
       - /etc/ssl/certs:/etc/ssl/certs/
