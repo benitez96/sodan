@@ -5,7 +5,7 @@ services:
     build: ./client
     ports:
       - "3000:3000"
-    # command: npm run dev --host
+    command: serve -s build
     volumes:
       - ./client/:/app/
   # server
