@@ -31,7 +31,7 @@ services:
       - ./.env.dev
     ports:
       - "8000:8000"
-    command: gunicorn hello_django.wsgi:application --bind 0.0.0.0:8000
+    command: gunicorn store.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - ./server/:/usr/src/app/  
     depends_on:
