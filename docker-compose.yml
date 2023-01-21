@@ -2,12 +2,10 @@ version: "3.9"
 services:
   # client
   client:
-    build:
-      context: ./client
-      dockerfile: Dockerfile.prod
+    build: ./client
     ports:
       - "3000:3000"
-    command: serve -s dist
+    command: yarn dev --port 3000
     volumes:
       - ./client/:/app/
   # server
@@ -36,22 +34,6 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ./.env.dev.db
-
-  # proxy
-  proxy:
-    image: nginx
-    ports:
-      - "80:80"
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - .:/etc/nginx/conf.d/
-      - /etc/ssl/certs:/etc/ssl/certs/
-      - /etc/ssl/private:/etc/ssl/private/
-    links:
-      - server
-      - client
 
   # debugger
   wdb:

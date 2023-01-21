@@ -1,17 +1,5 @@
 version: "3.9"
 services:
-  # proxy
-  proxy:
-    image: nginx
-    ports:
-      - "80:80"
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - .:/etc/nginx/conf.d
-      - /etc/ssl/certs:/etc/ssl/certs
-      - /etc/ssl/private:/etc/ssl/private
   # client
   client:
     build:
@@ -36,12 +24,6 @@ services:
       - ./server/:/usr/src/app/  
     depends_on:
     - db
-    - wdb
-    environment:
-      WDB_SOCKET_SERVER: wdb
-      WDB_NO_BROWSER_AUTO_OPEN: "true"
-    stdin_open: true
-    tty: true
 
   # database
   db:
@@ -49,15 +31,23 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
-      - ./.env.db.prod
+      - ./.env.prod.db
 
-  # debugger
-  wdb:
-    image: kozea/wdb
+  # proxy
+  proxy:
+    image: nginx
     ports:
-      - 1984:1984
-    # HACK https://github.com/Kozea/wdb/issues/136
-    init: true
+      - "80:80"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - .:/etc/nginx/conf.d/
+      - /etc/ssl/certs:/etc/ssl/certs/
+      - /etc/ssl/private:/etc/ssl/private/
+    links:
+      - server
+      - client
 
 volumes:
   postgres_data:
