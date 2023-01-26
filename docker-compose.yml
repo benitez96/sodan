@@ -2,10 +2,12 @@ version: "3.9"
 services:
   # client
   client:
-    build: ./client
+    build:
+            context: ./client
+            dockerfile: Dockerfile.prod
     ports:
       - "3000:3000"
-    command: yarn dev --port 3000
+    command: serve -s dist
     volumes:
       - ./client/:/app/
   # server
@@ -17,7 +19,7 @@ services:
       - "8000:8000"
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - ./server/:/usr/src/app/  
+      - ./server/:/usr/src/app/
     depends_on:
     - db
     - wdb
@@ -26,14 +28,38 @@ services:
       WDB_NO_BROWSER_AUTO_OPEN: "true"
     stdin_open: true
     tty: true
-
-  # database
+ # database
   db:
     image: postgres:13
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ./.env.dev.db
+
+  # proxy
+  proxy:
+    image: nginx
+    ports:
+      - "80:80"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./data/nginx:/etc/nginx/conf.d
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    links:
+      - server
+      - client
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+
+  # SSL certs
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
   # debugger
   wdb:
@@ -44,4 +70,4 @@ services:
     init: true
 
 volumes:
-  postgres_data:
+  postgres_data
