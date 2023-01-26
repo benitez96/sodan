@@ -70,4 +70,4 @@ services:
     init: true
 
 volumes:
-  postgres_data
+  postgres_data:
