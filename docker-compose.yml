@@ -3,8 +3,8 @@ services:
   # client
   client:
     build:
-            context: ./client
-            dockerfile: Dockerfile.prod
+      context: ./client
+      dockerfile: Dockerfile.prod
     ports:
       - "3000:3000"
     command: serve -s dist
@@ -22,10 +22,10 @@ services:
       - ./server/:/usr/src/app/
     depends_on:
     - db
-    - wdb
-    environment:
-      WDB_SOCKET_SERVER: wdb
-      WDB_NO_BROWSER_AUTO_OPEN: "true"
+    # - wdb
+    # environment:
+    #   WDB_SOCKET_SERVER: wdb
+    #   WDB_NO_BROWSER_AUTO_OPEN: "true"
     stdin_open: true
     tty: true
  # database
@@ -41,25 +41,24 @@ services:
     image: nginx
     ports:
       - "80:80"
-    ports:
-      - "80:80"
       - "443:443"
     volumes:
       - ./data/nginx:/etc/nginx/conf.d
-      - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot
+      - ./data/www:/var/www/
+      # - ./data/certbot/conf:/etc/letsencrypt
+      # - ./data/certbot/www:/var/www/certbot
     links:
       - server
       - client
-    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+  #   command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
 
   # SSL certs
-  certbot:
-    image: certbot/certbot
-    volumes:
-      - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+  # certbot:
+  #   image: certbot/certbot
+  #   volumes:
+  #     - ./data/certbot/conf:/etc/letsencrypt
+  #     - ./data/certbot/www:/var/www/certbot
+  #   entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
   # debugger
   wdb:
